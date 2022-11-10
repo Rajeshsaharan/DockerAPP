@@ -1,5 +1,15 @@
 version: '3.8'
-services: 
+services:
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3050:80"
   api:
     container_name: api-container
     restart: always
@@ -13,7 +23,7 @@ services:
     restart: always
     build: ./client
     ports: 
-      - "80:8080"
+      - "8080:8080"
     depends_on: 
       - api
   mongo:

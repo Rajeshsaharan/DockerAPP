@@ -1,22 +1,17 @@
-FROM node
-
-# install simple http server for serving static content
-RUN npm install -g http-server
-
-# make the 'client' folder the current working directory
-WORKDIR /client
-
-# copy both 'package.json' and 'package-lock.json' (if available)
-COPY package*.json /client/
-
-# install project dependencies
+# Dockerfile for react.js app and nginx
+# build environment
+FROM node:8-alpine as builder
+WORKDIR /usr/src/app
+ENV PATH /usr/src/app/node_modules/.bin:$PATH
+COPY package.json /usr/src/app/package.json
 RUN npm install
+COPY . /usr/src/app
+RUN npm run build --loglevel verbose
 
-# copy project files and folders to the current working directory (i.e. 'client' folder)
-COPY . /client/
-
-# build client for production with minification
-RUN npm run build
-
-EXPOSE 8080
-CMD [ "http-server", "dist" ]
+# production environment
+FROM nginx:1.13.9-alpine
+RUN rm -rf /etc/nginx/conf.d
+COPY conf /etc/nginx
+COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]"-g", "daemon off;"]

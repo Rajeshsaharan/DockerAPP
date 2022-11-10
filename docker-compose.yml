@@ -10,6 +10,8 @@ services:
       context: ./nginx
     ports:
       - "80:80"
+    networks:
+      - library-mern-api
   api:
     container_name: api-container
     restart: always
@@ -18,14 +20,18 @@ services:
       - "5000:5000"
     depends_on: 
       - mongo
+    networks:
+      - library-mern-api
   client:
     container_name: client-container
     restart: always
     build: ./client
     ports: 
-      - "8080:8080"
+      - "3000:3000"
     depends_on: 
       - api
+    networks:
+      - library-mern-api
   mongo:
     container_name: mongo-backend
     image: mongo
@@ -38,3 +44,6 @@ services:
 
 volumes: 
   apiDB:
+networks:
+   library-mern-api:
+      driver: bridge
